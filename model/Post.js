@@ -1,11 +1,11 @@
 import  mongoose from 'mongoose';
 
 const PostSchema = new mongoose.Schema({
-    name: {
+    original: {
         type: String,
         required: true,
     },
-    photo: {
+    result: {
         type: String,
         required: true,
     },
@@ -13,10 +13,6 @@ const PostSchema = new mongoose.Schema({
         type: String,
         required:true
     },
-    prompt :{
-        type : String,
-        required: true,
-    }
 } , {
     timestamps: true,
 })

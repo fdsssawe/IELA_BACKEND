@@ -22,17 +22,19 @@ class PostService {
 
     async createPost (req, res)  {
       let imageData;
-  
+      let photo
       if (req.body.imageUrl) {
           // If image URL is provided, fetch the image
           const response = await fetch(req.body.imageUrl);
           const buffer = await response.buffer();
           imageData = await Canvas.loadImage(buffer);
+          photo = req.body.imageUrl
       } else if (req.body.base64) {
           // If base64 encoded image data is provided, load the image
           const base64Data = req.body.base64.replace(/^data:image\/\w+;base64,/, '');
           const buffer = Buffer.from(base64Data, 'base64');
           imageData = await Canvas.loadImage(buffer);
+          photo = req.body.base64
       } else {
           return res.status(400).json({ error: 'Image URL or base64 encoded image data is required.' });
       }
@@ -46,7 +48,17 @@ class PostService {
       buildHistogram(ctx, histogramData);
   
       const histogramImage = canvas.toDataURL();
-      res.send(histogramImage);
+
+      const originalURL = await cloudinary.uploader.upload(photo);
+      const resultURL = await cloudinary.uploader.upload(histogramImage);
+
+      const newPost = await Post.create({
+          original: originalURL.url,
+          result: resultURL.url,
+          author : req.body.author,
+      })
+
+      res.json({ original: originalURL.url, result: resultURL.url });
   }
 
     async getPosts(preferences) {

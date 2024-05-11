@@ -8,8 +8,6 @@ import { errorMiddleware } from './middlewares/errorMiddleware.js'
 import bodyParser from 'body-parser';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerui from "swagger-ui-express"
-import Canvas from 'canvas';
-import fetch from 'node-fetch';
 
 dotenv.config()
 
@@ -33,7 +31,7 @@ const options = {
           },
         servers : [
             {
-                url : "https://inkfinder-five.vercel.app/api/"
+                url : "https://iela-backend.vercel.app/"
             }
         ]
     },
@@ -65,7 +63,7 @@ const app = express();
 
 app.use(cors({
     credentials : true,
-    origin : [ process.env.CLIENT_URL]
+    origin : ["https://iela.vercel.app/", "http://localhost:5173"]
 }))
 
 app.use(cookieParser())
@@ -75,7 +73,7 @@ app.use('/api',router)
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
-app.use('/api-docs', swaggerui.serve , swaggerui.setup(swaggerSpec, { customCssUrl: CSS_URL }))
+app.use('/swagger', swaggerui.serve , swaggerui.setup(swaggerSpec, { customCssUrl: CSS_URL }))
 
 app.listen(process.env.PORT, (err) => {
     if (err){

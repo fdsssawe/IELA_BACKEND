@@ -63,3 +63,28 @@ router.get("/users", authMiddleware, userControllerContainer.resolve("userContro
 router.get("/user/:id"  , userControllerContainer.resolve("userController").getUsersPosts)
 router.get("/user/:id/saved"  , postController.getSavedPosts)
 router.post("/isuser"  , userControllerContainer.resolve("userController").getUser)
+
+/**
+ * @swagger
+ * tags:
+ *   name: Posts
+ *   description: The posts managing API
+ * /post/{id}:
+ *  get:
+ *    tags: [Posts]
+ *    summary: Get specific post api call
+ *    description : You will recive post info
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: string
+ *          minimum: 1
+ *        description: The post ID (example post id - 64458acd10ecfc116c88c46a)
+ *    responses:
+ *        200: 
+ *           description: You will get post info (if test user used, you will get array with 1 post with the following prompt - "headphones made of glass")
+ */
+
+router.get("/post/:id"  , postController.getPostById)
