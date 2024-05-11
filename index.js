@@ -63,7 +63,7 @@ const app = express();
 
 app.use(cors({
     credentials : true,
-    origin : ["https://iela.vercel.app/", "http://localhost:5173"]
+    origin : ["https://iela.vercel.app/","https://iela.vercel.app", "http://localhost:5173"]
 }))
 
 app.use(cookieParser())
