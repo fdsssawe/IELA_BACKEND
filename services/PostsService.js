@@ -24,13 +24,11 @@ class PostService {
       let imageData;
       let photo
       if (req.body.imageUrl) {
-          // If image URL is provided, fetch the image
           const response = await fetch(req.body.imageUrl);
           const buffer = await response.buffer();
           imageData = await Canvas.loadImage(buffer);
           photo = req.body.imageUrl
       } else if (req.body.base64) {
-          // If base64 encoded image data is provided, load the image
           const base64Data = req.body.base64.replace(/^data:image\/\w+;base64,/, '');
           const buffer = Buffer.from(base64Data, 'base64');
           imageData = await Canvas.loadImage(buffer);
@@ -116,39 +114,6 @@ class PostService {
             console.log(error)
         }
     }
-
-    async getSavedPosts(user) {
-        try {
-          const posts = await Promise.all(user.postsSaved.map(async (id) => {
-            try {
-              const post = await Post.findById(id);
-              if (post) {
-                return post;
-              } else {
-                const index = user.postsSaved.indexOf(id);
-                if (index !== -1) {
-                  user.postsSaved.splice(index, 1);
-                }
-                await user.save()
-                console.log(`Post with ID ${id} does not exist.`);
-                return null;
-              }
-            } catch (error) {
-              console.error(`Error finding post with ID ${id}:`, error);
-              return null;
-            }
-          }));
-          const validPosts = posts.filter((post) => post !== null);;
-          return validPosts
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    getLog(){
-      console.log("Fetch finished")
-    }
-
 }
 
 const postServiceContainer = createContainer()

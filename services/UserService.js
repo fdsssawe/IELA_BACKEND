@@ -22,7 +22,7 @@ class UserService{
         const hashPassword = await bcrypt.hash(password,3);
         const activationLink = v4()
         const user = await User.create({email,password : hashPassword , activationLink})
-        // await mailServiceContainer.resolve("mailService").sendActivisionMail(email,`${process.env.API_URL}/api/activate/${activationLink}`)
+
         const userDTO = new UserDto(user)
         const tokens = tokenServiceContainer.resolve("tokenService").generateTokens({...userDTO})
         await tokenServiceContainer.resolve("tokenService").saveToken(userDTO.id, tokens.refreshToken)
@@ -86,11 +86,6 @@ class UserService{
             profileOwner,
         }
         return profileData;
-    }
-
-    async getAllUsers() {
-        const users = await User.find();
-        return users;
     }
 
     async isUser(email) {

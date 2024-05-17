@@ -28,36 +28,7 @@ class PostController {
     }
   }
 
-  async savePost(req, res, next) {
-    try {
-      const { user } = req.body;
-      const id = req.params.id;
-      const result = await postServiceContainer.resolve("postService").savePost(id, user);
-      return res.json(result);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async getSavedPosts(req, res, next) {
-    try {
-      const id = req.params.id;
-      const user = await User.findById(id);
-      if (user.postsSaved) {
-        const result = await postServiceContainer.resolve("postService").getSavedPosts(user);
-        return res.json(result);
-      }
-      return res.json([]);
-    } catch (e) {
-      next(e);
-    }
-  }
 }
-
-// Resolve the postService instance from the container
-// const postService = postServiceContainer.resolve("postService");
-
-// Create a new instance of PostController with the resolved postService
 const postController = new PostController();
 
 
