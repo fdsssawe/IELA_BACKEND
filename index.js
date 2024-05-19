@@ -6,47 +6,8 @@ import cookieParser from 'cookie-parser';
 import { router } from './router/index.js';
 import { errorMiddleware } from './middlewares/errorMiddleware.js'
 import bodyParser from 'body-parser';
-import swaggerJSDoc from 'swagger-jsdoc';
-import swaggerui from "swagger-ui-express"
 
 dotenv.config()
-
-const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
-const options = {
-    withCredentials: true, // enable cookies
-    definition : {
-        openapi : '3.0.0',
-        info : {
-            title : "Image Exposition",
-            version : "1.0.0",
-        },
-        components: {
-            securitySchemas: {
-              bearerAuth: {
-                type: "http",
-                scheme: "bearer",
-                bearerFormat: "JWT",
-              },
-            },
-          },
-        servers : [
-            {
-                url : "https://iela-backend.vercel.app/"
-            }
-        ]
-    },
-    apis: ["./router/index.js"],
-    requestInterceptor: (req) => {
-        const cookies = document.cookie
-        req.headers = {
-          ...req.headers,
-          'Cookie': cookies
-        };
-        return req;
-    },
-}
-
-const swaggerSpec = swaggerJSDoc(options)
 
 mongo.connect(process.env.MONGO_URL,
     {
@@ -73,14 +34,13 @@ app.use('/api',router)
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
-app.use('/swagger', swaggerui.serve , swaggerui.setup(swaggerSpec, { customCssUrl: CSS_URL }))
+
 
 app.listen(process.env.PORT, (err) => {
     if (err){
         return console.log(err);
     }
-
-    console.log("Server ok");
+    console.log(`Server is working correctly on port ${process.env.PORT}`);
 })
 
 export default app;
