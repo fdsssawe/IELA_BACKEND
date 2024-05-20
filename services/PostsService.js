@@ -6,7 +6,7 @@ import { createContainer , asValue } from "awilix"
 import Canvas from 'canvas';
 import fetch from 'node-fetch';
 import axios from "axios"
-import { analyzeImage, buildHistogram } from "../lib/ImageFunctions.js"
+import { analyzeImage, analyzeImageExtra, buildHistogram, getMean } from "../lib/ImageFunctions.js"
 
 dotenv.config()
 
@@ -20,44 +20,51 @@ class PostService {
         })
     }
 
-    async createPost (req, res)  {
-      let imageData;
-      let photo
-      if (req.body.imageUrl) {
+    async createPost(req, res) {
+        let imageData;
+        let photo;
+        if (req.body.imageUrl) {
           const response = await fetch(req.body.imageUrl);
           const buffer = await response.buffer();
           imageData = await Canvas.loadImage(buffer);
-          photo = req.body.imageUrl
-      } else if (req.body.base64) {
+          photo = req.body.imageUrl;
+        } else if (req.body.base64) {
           const base64Data = req.body.base64.replace(/^data:image\/\w+;base64,/, '');
           const buffer = Buffer.from(base64Data, 'base64');
           imageData = await Canvas.loadImage(buffer);
-          photo = req.body.base64
-      } else {
+          photo = req.body.base64;
+        } else {
           return res.status(400).json({ error: 'Image URL or base64 encoded image data is required.' });
-      }
-  
-      const canvas = Canvas.createCanvas(imageData.width, imageData.height);
-      const ctx = canvas.getContext('2d');
+        }
       
-      ctx.drawImage(imageData, 0, 0);
+        const canvas = Canvas.createCanvas(imageData.width, imageData.height);
+        const ctx = canvas.getContext('2d');
       
-      const histogramData = analyzeImage(ctx, imageData);
-      buildHistogram(ctx, histogramData);
-  
-      const histogramImage = canvas.toDataURL();
-
-      const originalURL = await cloudinary.uploader.upload(photo);
-      const resultURL = await cloudinary.uploader.upload(histogramImage);
-
-      const newPost = await Post.create({
+        ctx.drawImage(imageData, 0, 0);
+      
+        // Analyze the image
+        const analysis = analyzeImageExtra(ctx, imageData);
+        const histogramData = analyzeImage(ctx, imageData);
+        buildHistogram(ctx, histogramData);
+      
+        const histogramImage = canvas.toDataURL();
+      
+        const originalURL = await cloudinary.uploader.upload(photo);
+        const resultURL = await cloudinary.uploader.upload(histogramImage);
+      
+        const newPost = await Post.create({
           original: originalURL.url,
           result: resultURL.url,
-          author : req.body.author,
-      })
-
-      res.json({ original: originalURL.url, result: resultURL.url });
-  }
+          author: req.body.author,
+          ...analysis, // Spread analysis object to include additional data
+        });
+      
+        res.json({
+          original: originalURL.url,
+          result: resultURL.url,
+          ...analysis, // Send image analysis data to user
+        });
+      }
 
     async getPosts(preferences) {
         try {
